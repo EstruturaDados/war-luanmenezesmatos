@@ -15,12 +15,19 @@
 // ============================================================================
 
 // Inclusão das bibliotecas padrão necessárias para entrada/saída, alocação de memória, manipulação de strings e tempo.
+#include <stdio.h>
+#include <string.h>
 
 // --- Constantes Globais ---
 // Definem valores fixos para o número de territórios, missões e tamanho máximo de strings, facilitando a manutenção.
 
 // --- Estrutura de Dados ---
 // Define a estrutura para um território, contendo seu nome, a cor do exército que o domina e o número de tropas.
+typedef struct {
+    char nome[30];
+    char cor[10];
+    int tropas;
+} Territorio;
 
 // --- Protótipos das Funções ---
 // Declarações antecipadas de todas as funções que serão usadas no programa, organizadas por categoria.
@@ -50,6 +57,39 @@ int main() {
 
     // 3. Limpeza:
     // - Ao final do jogo, libera a memória alocada para o mapa para evitar vazamentos de memória.
+
+    // Vetor para armazenar até 5 territórios
+    Territorio territorios[5];
+
+    // Cadastro dos territórios
+    printf("Cadastro de Territórios\n");
+    printf("=======================\n");
+    for (int i = 0; i < 5; i++) {
+        printf("\nTerritório %d:\n", i + 1);
+
+        // Entrada do nome do território
+        printf("Digite o nome do território: ");
+        scanf("%29s", territorios[i].nome);
+
+        // Entrada da cor do exército
+        printf("Digite a cor do exército: ");
+        scanf("%9s", territorios[i].cor);
+
+        // Entrada da quantidade de tropas
+        printf("Digite a quantidade de tropas: ");
+        scanf("%d", &territorios[i].tropas);
+    }
+
+    // Exibição dos dados cadastrados
+    printf("\nDados dos Territórios Cadastrados:\n");
+    printf("==================================\n");
+    for (int i = 0; i < 5; i++) {
+        printf("Território %d:\n", i + 1);
+        printf("Nome: %s\n", territorios[i].nome);
+        printf("Cor do Exército: %s\n", territorios[i].cor);
+        printf("Tropas: %d\n", territorios[i].tropas);
+        printf("--------------------------\n");
+    }
 
     return 0;
 }
