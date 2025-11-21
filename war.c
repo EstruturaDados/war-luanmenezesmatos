@@ -89,6 +89,75 @@ void liberarMemoria(Territorio* mapa) {
     free(mapa);
 }
 
+// Vetor de missões estratégicas
+const char* missoes[] = {
+    "Conquistar 3 territórios seguidos",
+    "Eliminar todas as tropas da cor vermelha",
+    "Ter pelo menos 2 territórios com mais de 10 tropas",
+    "Conquistar um território de cada cor",
+    "Ter o maior número de territórios ao final do turno"
+};
+const int totalMissoes = 5;
+
+// Função que sorteia e atribui uma missão ao jogador
+void atribuirMissao(char* destino, const char* missoes[], int totalMissoes) {
+    int sorteio = rand() % totalMissoes;
+    strcpy(destino, missoes[sorteio]);
+}
+
+// Função para exibir a missão do jogador
+void exibirMissao(const char* missao) {
+    printf("\nSua missão: %s\n", missao);
+}
+
+// Função que verifica se a missão foi cumprida (lógica simples inicial)
+int verificarMissao(const char* missao, Territorio* mapa, int tamanho) {
+    // Exemplo de lógica para cada missão
+    if (strcmp(missao, missoes[0]) == 0) {
+        // Conquistar 3 territórios seguidos (mesma cor do jogador)
+        int seguidos = 0;
+        for (int i = 0; i < tamanho; i++) {
+            if (i > 0 && strcmp(mapa[i].cor, mapa[i-1].cor) == 0) {
+                seguidos++;
+                if (seguidos >= 2) return 1;
+            } else {
+                seguidos = 0;
+            }
+        }
+    } else if (strcmp(missao, missoes[1]) == 0) {
+        // Eliminar todas as tropas da cor vermelha
+        for (int i = 0; i < tamanho; i++) {
+            if (strcmp(mapa[i].cor, "vermelha") == 0 && mapa[i].tropas > 0)
+                return 0;
+        }
+        return 1;
+    } else if (strcmp(missao, missoes[2]) == 0) {
+        // Ter pelo menos 2 territórios com mais de 10 tropas
+        int count = 0;
+        for (int i = 0; i < tamanho; i++) {
+            if (mapa[i].tropas > 10) count++;
+        }
+        if (count >= 2) return 1;
+    } else if (strcmp(missao, missoes[3]) == 0) {
+        // Conquistar um território de cada cor (azul, vermelha, verde, amarelo)
+        int azul=0, vermelha=0, verde=0, amarelo=0;
+        for (int i = 0; i < tamanho; i++) {
+            if (strcmp(mapa[i].cor, "azul") == 0) azul = 1;
+            if (strcmp(mapa[i].cor, "vermelha") == 0) vermelha = 1;
+            if (strcmp(mapa[i].cor, "verde") == 0) verde = 1;
+            if (strcmp(mapa[i].cor, "amarelo") == 0) amarelo = 1;
+        }
+        if (azul && vermelha && verde && amarelo) return 1;
+    } else if (strcmp(missao, missoes[4]) == 0) {
+        // Ter o maior número de territórios ao final do turno
+        // Simples: verifica se a cor do jogador domina mais territórios
+        // (Necessário passar a cor do jogador, aqui só exemplo)
+        // Retorne 0 para não declarar vitória automática
+        return 0;
+    }
+    return 0;
+}
+
 // Função principal do programa
 int main() {
     srand(time(NULL)); // Inicializa a semente para números aleatórios
@@ -107,6 +176,16 @@ int main() {
     // Cadastro e exibição inicial dos territórios
     cadastrarTerritorios(mapa, n);
     exibirTerritorios(mapa, n);
+
+    // Aloca dinamicamente a missão do jogador
+    char* missao_jogador = (char*)malloc(100 * sizeof(char));
+    if (!missao_jogador) {
+        printf("Erro ao alocar memória para missão!\n");
+        liberarMemoria(mapa);
+        return 1;
+    }
+    atribuirMissao(missao_jogador, missoes, totalMissoes);
+    exibirMissao(missao_jogador);
 
     // Solicita ao jogador a cor do exército que irá atacar
     char cor_jogador[10];
@@ -146,11 +225,18 @@ int main() {
             // Realiza o ataque e exibe os dados atualizados
             atacar(&mapa[idx_atacante - 1], &mapa[idx_defensor - 1]);
             exibirTerritorios(mapa, n);
+
+            // Verifica se a missão foi cumprida após o ataque
+            if (verificarMissao(missao_jogador, mapa, n)) {
+                printf("\nParabéns! Você cumpriu sua missão e venceu o jogo!\n");
+                break;
+            }
         }
     } while (opcao != 0);
 
     // Libera a memória alocada antes de encerrar o programa
     liberarMemoria(mapa);
+    free(missao_jogador);
     return 0;
 }
 
